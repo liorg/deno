@@ -1,0 +1,23 @@
+[Unit]
+Description=ScenarioBot Deno Compile Server
+After=network.target
+
+[Service]
+User=admin
+Group=admin
+WorkingDirectory=/opt/scenariobot
+
+ExecStart=/home/admin/.deno/bin/deno run \
+  --allow-net \
+  --allow-read \
+  --allow-write \
+  --allow-env \
+  /opt/scenariobot/deno_compile_server.ts
+
+Restart=always
+RestartSec=3
+
+Environment=DENO_PORT=8765
+
+[Install]
+WantedBy=multi-user.target
