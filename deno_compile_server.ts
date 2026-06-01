@@ -27,6 +27,17 @@ interface CheckResponse {
   type_errors: string[];
 }
 
+// ── Type declaration injected before user code ───────────────────────────────
+const PAYLOAD_TYPE_DECL = `
+interface __Payload {
+  scenarioId: string;
+  stepId: string;
+  target_contact: { id: string; phone: string; name: string; };
+  source_phone: { id: string; phone: string; };
+  lastMessage: { num: string; Value: string; };
+}
+`;
+
 // ── Wrap user code for execution ─────────────────────────────────────────────
 function wrapCode(code: string): string {
   // מסיר export default ומעטפת לריצה מבוקרת
@@ -35,10 +46,13 @@ function wrapCode(code: string): string {
     .replace(/^module\.exports\s*=\s*/m, "const __userFn = ");
 
   return `
+// deno-lint-ignore-file
+// @ts-nocheck for implicit any on payload param
+${PAYLOAD_TYPE_DECL}
 ${cleaned}
 
 // Run with sample payload
-const __payload = ${JSON.stringify(SAMPLE_PAYLOAD)};
+const __payload: __Payload = ${JSON.stringify(SAMPLE_PAYLOAD)};
 let __result;
 try {
   if (typeof __userFn === "function") {
